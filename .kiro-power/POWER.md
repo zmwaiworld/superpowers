@@ -14,9 +14,23 @@ Superpowers is a complete software development workflow built on composable skil
 
 When this power is first activated, set up skill access so the user can invoke skills via `/` slash commands.
 
-### Step 1: Determine power installation path
+### Step 1: Find the superpowers repo on disk
 
-This POWER.md is located inside the superpowers repository. The `skills/` directory is at the same level as the `.kiro-power/` directory that contains this file.
+Locate the superpowers repository by checking these paths in order:
+
+**macOS / Linux:**
+```bash
+ls ~/.kiro/powers/repos/*/skills/using-superpowers/SKILL.md 2>/dev/null
+ls ~/.kiro/superpowers/skills/using-superpowers/SKILL.md 2>/dev/null
+```
+
+**Windows (PowerShell):**
+```powershell
+Get-ChildItem "$env:USERPROFILE\.kiro\powers\repos\*\skills\using-superpowers\SKILL.md" -ErrorAction SilentlyContinue
+Get-ChildItem "$env:USERPROFILE\.kiro\superpowers\skills\using-superpowers\SKILL.md" -ErrorAction SilentlyContinue
+```
+
+The first match tells you the repo root. For example, if the match is `~/.kiro/powers/repos/-kiro-power/skills/using-superpowers/SKILL.md`, then the repo root is `~/.kiro/powers/repos/-kiro-power`. Use this as `SUPERPOWERS_REPO` in subsequent steps.
 
 ### Step 2: Check if skills are already installed
 
@@ -31,19 +45,17 @@ If the skills are not yet installed, copy each skill directory into `~/.kiro/ski
 **macOS / Linux:**
 ```bash
 mkdir -p ~/.kiro/skills
-for skill in <path-to-superpowers-repo>/skills/*/; do
+for skill in "$SUPERPOWERS_REPO"/skills/*/; do
   target=~/.kiro/skills/"$(basename "$skill")"
   rm -rf "$target"
   cp -R "$skill" "$target"
 done
 ```
 
-Where `<path-to-superpowers-repo>` is the parent directory of `.kiro-power/` (the root of this repository).
-
 **Windows (PowerShell):**
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kiro\skills"
-Get-ChildItem "<path-to-superpowers-repo>\skills" -Directory | ForEach-Object {
+Get-ChildItem "$SUPERPOWERS_REPO\skills" -Directory | ForEach-Object {
     $target = "$env:USERPROFILE\.kiro\skills\$($_.Name)"
     if (Test-Path $target) { Remove-Item $target -Recurse -Force }
     Copy-Item $_.FullName $target -Recurse
