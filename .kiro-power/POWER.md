@@ -114,3 +114,5 @@ When skills reference Claude Code tools, substitute Kiro equivalents:
 | `Bash` | `executeBash` | Same functionality |
 | `WebFetch` | `webFetch` | Same functionality |
 | `WebSearch` | `remote_web_search` | Same functionality |
+
+<!-- update-test-marker: 2026-03-05T21:00 -->
