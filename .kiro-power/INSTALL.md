@@ -11,41 +11,41 @@
 3. Click "Import power from GitHub"
 4. Enter: `https://github.com/obra/superpowers/tree/main/.kiro-power`
 5. Install the power
+6. Click "Try the power" — the agent will install a global steering file to `~/.kiro/steering/superpowers.md`
 
-The power activates automatically when you mention keywords like "debug", "plan", "brainstorm", or "tdd". On activation it locates the repo, loads the bootstrap skill via `discloseContext`, and loads other skills on demand from the repo — no file copying needed.
+After onboarding, the Superpowers workflow loads automatically in every conversation. Skills are read directly from the repo on disk — no file copying needed.
 
 ## Manual Installation
 
-If you prefer not to use the Powers Panel, clone the repo and point the power at it manually.
+If you prefer not to use the Powers Panel, clone the repo and set up the steering file manually.
 
 ### macOS / Linux
 
 ```bash
 git clone https://github.com/obra/superpowers.git ~/superpowers
+mkdir -p ~/.kiro/steering
+cp ~/superpowers/.kiro-power/steering/superpowers.md ~/.kiro/steering/superpowers.md
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
 git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\superpowers"
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kiro\steering"
+Copy-Item "$env:USERPROFILE\superpowers\.kiro-power\steering\superpowers.md" "$env:USERPROFILE\.kiro\steering\superpowers.md"
 ```
-
-Then tell the Kiro agent:
-
-```text
-Load the superpowers using-superpowers skill from ~/superpowers/skills/using-superpowers/SKILL.md
-```
-
-The agent will use `discloseContext` to load the skill and follow the workflow from there.
 
 ## How It Works
 
-Superpowers uses Kiro's `discloseContext` tool to load skills directly from the repository on disk. There is no file copying, no symlinks, and no `~/.kiro/skills/` installation step.
+The global steering file (`~/.kiro/steering/superpowers.md`) loads in every conversation and tells the agent to:
 
-- **Powers Panel install:** Kiro clones the repo into `~/.kiro/powers/repos/`. POWER.md locates the repo and bootstraps via `discloseContext`.
-- **Manual install:** You clone the repo yourself. The agent loads skills from wherever you cloned it.
+1. Locate the superpowers repo on disk
+2. Read `skills/using-superpowers/SKILL.md` from the repo
+3. Follow the workflow and load other skills on demand
 
-**Trade-off:** Skills are not available as `/` slash commands (Kiro only discovers those from `~/.kiro/skills/`). Instead, the power activates on keyword match and the agent loads skills on demand. You can also ask the agent directly: "use the brainstorming skill".
+Skills are read directly from the filesystem — no `~/.kiro/skills/` installation, no symlinks, no `/` slash commands.
+
+**Trade-off:** Skills are not available as `/` slash commands. Instead, the steering file bootstraps the workflow automatically, and you can ask the agent directly: "use the brainstorming skill".
 
 ## Updating
 
@@ -63,29 +63,37 @@ cd ~/.kiro/powers/repos/*superpowers* && git pull
 cd ~/superpowers && git pull
 ```
 
-Skills load from the repo directly, so updates take effect immediately — no re-copying needed.
+Skills load from the repo directly, so updates take effect immediately.
+
+If the steering file format has changed, re-copy it:
+
+```bash
+cp ~/superpowers/.kiro-power/steering/superpowers.md ~/.kiro/steering/superpowers.md
+```
 
 ## Uninstalling
 
-Remove the power from the Powers panel in Kiro. For manual installs, delete the cloned repo:
+Remove the power from the Powers panel, then delete the steering file:
 
 **macOS / Linux:**
 ```bash
-rm -rf ~/superpowers
+rm ~/.kiro/steering/superpowers.md
+rm -rf ~/superpowers  # if manually cloned
 ```
 
 **Windows (PowerShell):**
 ```powershell
-Remove-Item "$env:USERPROFILE\superpowers" -Recurse -Force
+Remove-Item "$env:USERPROFILE\.kiro\steering\superpowers.md" -Force
+Remove-Item "$env:USERPROFILE\superpowers" -Recurse -Force  # if manually cloned
 ```
 
 ## Troubleshooting
 
-### Power not activating
+### Workflow not loading in new conversations
 
-1. Verify the power is installed in the Powers panel
-2. Try mentioning a keyword like "debug" or "brainstorm" in chat
-3. Check that POWER.md exists in the installed power directory
+1. Verify the steering file exists: `cat ~/.kiro/steering/superpowers.md`
+2. If missing, re-run the onboarding: activate the power and let the agent install it
+3. Or copy manually: `cp <repo>/.kiro-power/steering/superpowers.md ~/.kiro/steering/superpowers.md`
 
 ### Agent can't find skills
 
@@ -97,7 +105,7 @@ Remove-Item "$env:USERPROFILE\superpowers" -Recurse -Force
 
 If the agent uses Claude Code tool names instead of Kiro equivalents, remind it:
 ```text
-Use Kiro tools: discloseContext for skills, invokeSubAgent for subagents, executeBash for shell commands
+Read skills with: executeBash cat <path>/SKILL.md or readFile. Do NOT use discloseContext for superpowers skills.
 ```
 
 ## Getting Help

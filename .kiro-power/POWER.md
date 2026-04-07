@@ -50,7 +50,7 @@ Tell the user: "Superpowers is installed. The workflow will load automatically i
 
 ## Available Skills
 
-Load any skill with `discloseContext` from `$SUPERPOWERS_REPO/skills/<name>/SKILL.md`:
+Read any skill with `executeBash cat` or `readFile` from `$SUPERPOWERS_REPO/skills/<name>/SKILL.md`:
 
 | Skill | When to use |
 |-------|-------------|
