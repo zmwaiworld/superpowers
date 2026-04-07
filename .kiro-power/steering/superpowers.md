@@ -2,39 +2,43 @@
 inclusion: always
 ---
 
-# Superpowers
+<EXTREMELY-IMPORTANT>
+YOU MUST COMPLETE THE BOOTSTRAP STEPS BELOW BEFORE RESPONDING TO THE USER.
+This is not optional. This is not negotiable. Do not skip this. Do not respond first and bootstrap later.
+If you have not yet read the using-superpowers SKILL.md file in this conversation, you MUST do it NOW.
+</EXTREMELY-IMPORTANT>
 
-At the start of every conversation, you MUST complete these steps IN ORDER before doing anything else:
+## Bootstrap Steps (execute IN ORDER)
 
-## Step 1: Locate the SKILL.md file
+### Step 1: Find the superpowers repo
 
-Use `listDirectory` or `executeBash` (NOT `discloseContext`) to find the file at one of these paths:
-- `~/.kiro/powers/repos/*/skills/using-superpowers/SKILL.md`
-- `~/superpowers/skills/using-superpowers/SKILL.md`
+Use `executeBash` to run:
+```bash
+ls ~/.kiro/powers/repos/*/skills/using-superpowers/SKILL.md ~/superpowers/skills/using-superpowers/SKILL.md 2>/dev/null
+```
 
-## Step 2: Read the SKILL.md file
+The first result is the file path. The directory two levels above `skills/` is the repo root (`SUPERPOWERS_REPO`).
 
-Use `executeBash` with `cat <path>` or `readFile` to read the full content of the file you found in Step 1. Do NOT use `discloseContext` — it cannot load files by path.
+### Step 2: Read the SKILL.md file
 
-## Step 3: Follow the SKILL.md instructions
+Use `readFile` or `executeBash cat` to read the full content of the file found in Step 1. Do NOT use `discloseContext` — it cannot load files by path.
 
-The SKILL.md content defines your complete workflow for the session. Follow it, including loading other skills on demand from the same repo.
+### Step 3: Follow the SKILL.md instructions
 
-## Tool Mapping (for interpreting SKILL.md instructions)
+The content you just read defines your complete workflow. Follow it for the rest of this conversation, including loading other skills on demand from `$SUPERPOWERS_REPO/skills/<name>/SKILL.md`.
 
-SKILL.md was written for Claude Code. In Kiro, map these tools:
+## Tool Mapping
 
-| SKILL.md says | In Kiro, use |
+Skills were written for Claude Code. In Kiro, use these equivalents:
+
+| Skill says | Use in Kiro |
 |---|---|
-| `Skill` (load a skill) | `executeBash` with `cat` to read `SKILL.md` from the same repo |
-| `TodoWrite` | markdown checklist |
-| `Task` | `invokeSubAgent` |
+| `Skill` (load a skill) | `readFile` or `executeBash cat` to read `$SUPERPOWERS_REPO/skills/<name>/SKILL.md` |
+| `TodoWrite` | Markdown checklist (`- [ ] item`) |
+| `Task` (subagent) | `invokeSubAgent` |
 | `Read` | `readFile` / `readCode` |
 | `Write` | `fsWrite` |
 | `Edit` | `strReplace` |
 | `Bash` | `executeBash` |
 
-## Critical Notes
-
-- `discloseContext` only works for skills registered in `~/.kiro/skills/`. The superpowers repo skills are NOT registered there — they live on the filesystem and must be read directly.
-- If Step 1 finds no file at either path, skip this workflow and proceed normally.
+If Step 1 finds no file, skip this workflow and proceed normally.
