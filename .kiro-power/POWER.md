@@ -10,67 +10,37 @@ author: "Jesse Vincent"
 
 Superpowers is a complete software development workflow built on composable skills. It starts before you write code — brainstorming designs, writing plans, then executing with TDD, systematic debugging, code review, and subagent-driven development. Skills trigger automatically based on what you're doing.
 
-## Onboarding
+## Bootstrap
 
-When this power is first activated, set up skill access so the user can invoke skills via `/` slash commands.
+When this power activates, you MUST do two things before taking any other action:
 
-### Step 1: Find the superpowers repo on disk
+### 1. Locate the superpowers repo
 
-Locate the superpowers repository by checking these paths in order:
+Find the repo root by checking these paths in order:
 
 **macOS / Linux:**
 ```bash
 ls ~/.kiro/powers/repos/*/skills/using-superpowers/SKILL.md 2>/dev/null
-ls ~/.kiro/superpowers/skills/using-superpowers/SKILL.md 2>/dev/null
+ls ~/superpowers/skills/using-superpowers/SKILL.md 2>/dev/null
 ```
 
 **Windows (PowerShell):**
 ```powershell
 Get-ChildItem "$env:USERPROFILE\.kiro\powers\repos\*\skills\using-superpowers\SKILL.md" -ErrorAction SilentlyContinue
-Get-ChildItem "$env:USERPROFILE\.kiro\superpowers\skills\using-superpowers\SKILL.md" -ErrorAction SilentlyContinue
+Get-ChildItem "$env:USERPROFILE\superpowers\skills\using-superpowers\SKILL.md" -ErrorAction SilentlyContinue
 ```
 
-The first match tells you the repo root. For example, if the match is `~/.kiro/powers/repos/-kiro-power/skills/using-superpowers/SKILL.md`, then the repo root is `~/.kiro/powers/repos/-kiro-power`. Use this as `SUPERPOWERS_REPO` in subsequent steps.
+The first match tells you the repo root. For example, if the match is `~/.kiro/powers/repos/-kiro-power/skills/using-superpowers/SKILL.md`, then the repo root is `~/.kiro/powers/repos/-kiro-power`. Remember this as `SUPERPOWERS_REPO`.
 
-### Step 2: Check if skills are already installed
+### 2. Load the using-superpowers skill
 
-```bash
-ls ~/.kiro/skills/brainstorming/SKILL.md 2>/dev/null
-```
+Use `discloseContext` to load `$SUPERPOWERS_REPO/skills/using-superpowers/SKILL.md`. That skill contains the complete workflow rules, skill priority, red flags table, and decision flowchart that govern all agent behavior.
 
-### Step 3: Copy skills if needed
+Do not proceed without loading it first.
 
-If the skills are not yet installed, copy each skill directory into `~/.kiro/skills/`. Kiro requires skills to be directly under the skills directory (no nesting).
+## Loading Skills On Demand
 
-**macOS / Linux:**
-```bash
-mkdir -p ~/.kiro/skills
-for skill in "$SUPERPOWERS_REPO"/skills/*/; do
-  target=~/.kiro/skills/"$(basename "$skill")"
-  rm -rf "$target"
-  cp -R "$skill" "$target"
-done
-```
-
-**Windows (PowerShell):**
-```powershell
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kiro\skills"
-Get-ChildItem "$SUPERPOWERS_REPO\skills" -Directory | ForEach-Object {
-    $target = "$env:USERPROFILE\.kiro\skills\$($_.Name)"
-    if (Test-Path $target) { Remove-Item $target -Recurse -Force }
-    Copy-Item $_.FullName $target -Recurse
-}
-```
-
-### Step 4: Verify
-
-```bash
-ls ~/.kiro/skills/
-```
-
-You should see skill directories like `brainstorming/`, `systematic-debugging/`, `test-driven-development/`, etc. directly under `~/.kiro/skills/`.
-
-After setup, skills are available as `/` slash commands in all Kiro workspaces.
+All skills live in the repo at `$SUPERPOWERS_REPO/skills/<name>/SKILL.md`. Load them with `discloseContext` when needed — no copying or installation required. `git pull` in the repo directory picks up updates instantly.
 
 ## Available Skills
 
@@ -90,22 +60,13 @@ After setup, skills are available as `/` slash commands in all Kiro workspaces.
 | `dispatching-parallel-agents` | When facing 2+ independent tasks |
 | `writing-skills` | When creating or editing skills |
 
-
-## Bootstrap
-
-When this power activates, IMMEDIATELY use `discloseContext` to load the `using-superpowers` skill before taking any other action. That skill contains the complete workflow rules, skill priority, red flags table, and decision flowchart that govern all agent behavior.
-
-Do not proceed without loading it first.
-
-Skills are also available as `/` slash commands — the user can type `/brainstorming`, `/systematic-debugging`, etc. to activate a skill directly.
-
 ## Tool Mapping for Kiro
 
 When skills reference Claude Code tools, substitute Kiro equivalents:
 
 | Claude Code Tool | Kiro Equivalent | Notes |
 |-----------------|-----------------|-------|
-| `Skill` tool | `discloseContext` | Load a skill by name |
+| `Skill` tool | `discloseContext` | Load `$SUPERPOWERS_REPO/skills/<name>/SKILL.md` |
 | `TodoWrite` | Markdown checklist | Use `- [ ] item` format in responses |
 | `Task` (subagent) | `invokeSubAgent` | Dispatch work to sub-agents |
 | `Read` | `readFile` / `readCode` | `readCode` preferred for code files |
@@ -114,5 +75,3 @@ When skills reference Claude Code tools, substitute Kiro equivalents:
 | `Bash` | `executeBash` | Same functionality |
 | `WebFetch` | `webFetch` | Same functionality |
 | `WebSearch` | `remote_web_search` | Same functionality |
-
-<!-- update-test-marker: 2026-03-05T21:00 -->
