@@ -53,15 +53,16 @@ In Cursor Agent chat, install from marketplace:
 
 ### Kiro IDE (via Powers Panel)
 
-In Kiro, open the Powers panel and import from GitHub:
+Kiro's "Add Custom Power" panel currently can't install this power (branches with slashes plus subdirectory powers aren't supported). Use the install script:
 
-1. Click "Import from GitHub"
-2. Enter: `https://github.com/obra/superpowers/tree/main/.kiro-power` (must point to the `.kiro-power` subdirectory, not the repo root)
-3. Install the power
+```bash
+git clone -b feat/kiro-support https://github.com/gaumondp/superpowers-kiro.git
+./superpowers-kiro/.kiro-power/install.py
+```
 
-The agent will automatically set up skills for `/` slash command access.
+Then reload the Kiro window: `cmd-shift-P` → "Developer: Reload Window".
 
-**Manual install / detailed docs:** [.kiro-power/INSTALL.md](.kiro-power/INSTALL.md)
+**Manual install / update / uninstall:** [.kiro-power/INSTALL.md](.kiro-power/INSTALL.md)
 
 ### Codex
 

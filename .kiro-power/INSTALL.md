@@ -1,215 +1,121 @@
-# Installing Superpowers for Kiro
+# Installing Superpowers in Kiro
 
-## Prerequisites
+There are two ways to install: a one-line script (recommended) or fully manual.
 
-- [Kiro IDE](https://kiro.dev) installed
-- Git installed
+The script exists because Kiro's "Add Custom Power" panel currently can't install this power. It fails when:
+- the branch contains a slash (e.g., `feat/kiro-support`)
+- the power lives in a subdirectory (`.kiro-power/`)
 
-## Installation via Powers Panel (Recommended)
-
-1. Open Kiro IDE
-2. Open the Powers panel
-3. Click "Import power from GitHub"
-4. Enter: `https://github.com/obra/superpowers/tree/main/.kiro-power`
-5. Install the power
-
-The agent will automatically set up skills for `/` slash command access during onboarding.
-
-## Manual Installation
-
-### macOS / Linux
+## Option A: Install Script (Recommended)
 
 ```bash
-# 1. Clone Superpowers
-git clone https://github.com/obra/superpowers.git ~/.kiro/superpowers
+git clone -b feat/kiro-support https://github.com/gaumondp/superpowers-kiro.git
+./superpowers-kiro/.kiro-power/install.py
+```
 
-# 2. Copy each skill into Kiro's skills directory
+Then reload the Kiro window: `cmd-shift-P` → "Developer: Reload Window".
+
+The script registers the cloned `.kiro-power/` directory as a `type: local`
+custom power in `~/.kiro/powers/`. POWER.md and any `steering/` files are
+mirrored into `~/.kiro/powers/installed/superpowers/`.
+
+### Skills setup
+
+Superpowers expects skill folders directly under `~/.kiro/skills/`. After
+installing the power, run:
+
+```bash
 mkdir -p ~/.kiro/skills
-for skill in ~/.kiro/superpowers/skills/*/; do
-  cp -R "$skill" ~/.kiro/skills/"$(basename "$skill")"
-done
-
-# 3. Restart Kiro
-```
-
-### Windows
-
-#### PowerShell
-
-```powershell
-# 1. Clone Superpowers
-git clone https://github.com/obra/superpowers.git "$env:USERPROFILE\.kiro\superpowers"
-
-# 2. Create skills directory
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.kiro\skills"
-
-# 3. Copy each skill into Kiro's skills directory
-Get-ChildItem "$env:USERPROFILE\.kiro\superpowers\skills" -Directory | ForEach-Object {
-    $target = "$env:USERPROFILE\.kiro\skills\$($_.Name)"
-    if (Test-Path $target) { Remove-Item $target -Recurse -Force }
-    Copy-Item $_.FullName $target -Recurse
-}
-
-# 4. Restart Kiro
-```
-
-#### Command Prompt
-
-```cmd
-:: 1. Clone Superpowers
-git clone https://github.com/obra/superpowers.git "%USERPROFILE%\.kiro\superpowers"
-
-:: 2. Create directory
-mkdir "%USERPROFILE%\.kiro\skills" 2>nul
-
-:: 3. Copy each skill into Kiro's skills directory
-for /D %%s in ("%USERPROFILE%\.kiro\superpowers\skills\*") do (
-    rmdir /S /Q "%USERPROFILE%\.kiro\skills\%%~ns" 2>nul
-    xcopy "%%s" "%USERPROFILE%\.kiro\skills\%%~ns\" /E /I /Q
-)
-
-:: 4. Restart Kiro
-```
-
-#### Git Bash
-
-```bash
-# 1. Clone Superpowers
-git clone https://github.com/obra/superpowers.git ~/.kiro/superpowers
-
-# 2. Create directory
-mkdir -p ~/.kiro/skills
-
-# 3. Copy each skill into Kiro's skills directory
-for skill in ~/.kiro/superpowers/skills/*/; do
-  cp -R "$skill" ~/.kiro/skills/"$(basename "$skill")"
-done
-
-# 4. Restart Kiro
-```
-
-#### WSL Users
-
-If running Kiro inside WSL, use the macOS / Linux instructions.
-
-## Verify Installation
-
-```bash
-ls ~/.kiro/skills/brainstorming/SKILL.md
-```
-
-You should see the file path printed. You can also list all installed skills:
-
-```bash
-ls ~/.kiro/skills/
-```
-
-Expected: `brainstorming/`, `systematic-debugging/`, `test-driven-development/`, etc. directly under `~/.kiro/skills/`.
-
-In Kiro chat, type `/` to see available slash commands — superpowers skills should appear.
-
-## Usage
-
-### Slash Commands
-
-Type `/` in Kiro chat to see available skills. Select a skill to load its full instructions.
-
-Examples:
-- `/brainstorming` — Design exploration before implementation
-- `/writing-plans` — Create detailed implementation plans
-- `/systematic-debugging` — Four-phase root cause debugging
-- `/test-driven-development` — Red-green-refactor TDD cycle
-
-### Automatic Activation
-
-When the Superpowers power is installed, Kiro automatically activates it when you mention relevant keywords like "debug", "plan", "brainstorm", or "tdd". The power loads bootstrap context that tells the agent to check for applicable skills before any response.
-
-### Skill Discovery
-
-Kiro discovers skills from these locations (highest priority first):
-
-1. **Project skills** (`.kiro/skills/`) — Project-specific skills
-2. **Global skills** (`~/.kiro/skills/`) — Personal and superpowers skills
-3. **Power activation** — POWER.md loaded on keyword match
-
-## Updating
-
-### Powers Panel Install
-
-Update from the Powers panel in Kiro.
-
-### Manual Install
-
-```bash
-cd ~/.kiro/superpowers && git pull
-```
-
-After pulling, re-copy skills to pick up changes:
-
-**macOS / Linux:**
-```bash
-for skill in ~/.kiro/superpowers/skills/*/; do
+for skill in superpowers-kiro/skills/*/; do
   cp -R "$skill" ~/.kiro/skills/"$(basename "$skill")"
 done
 ```
 
-**Windows (PowerShell):**
-```powershell
-Get-ChildItem "$env:USERPROFILE\.kiro\superpowers\skills" -Directory | ForEach-Object {
-    $target = "$env:USERPROFILE\.kiro\skills\$($_.Name)"
-    if (Test-Path $target) { Remove-Item $target -Recurse -Force }
-    Copy-Item $_.FullName $target -Recurse
-}
-```
-
-Restart Kiro to pick up changes.
-
-## Uninstalling
-
-### Remove skill directories
-
-**macOS / Linux:**
-```bash
-for skill in ~/.kiro/superpowers/skills/*/; do
-  rm -rf ~/.kiro/skills/"$(basename "$skill")"
-done
-```
-
-**Windows (PowerShell):**
-```powershell
-Get-ChildItem "$env:USERPROFILE\.kiro\superpowers\skills" -Directory | ForEach-Object {
-    Remove-Item "$env:USERPROFILE\.kiro\skills\$($_.Name)" -Recurse -Force -ErrorAction SilentlyContinue
-}
-```
-
-### Optionally delete the clone
+### Updating
 
 ```bash
-rm -rf ~/.kiro/superpowers
+./superpowers-kiro/.kiro-power/install.py --update superpowers
 ```
 
-## Troubleshooting
+This runs `git fetch + ff-merge` on the clone and re-mirrors POWER.md.
 
-### Skills not showing in slash commands
+To update every user-added power Kiro tracks:
 
-1. Verify skills exist: `ls ~/.kiro/skills/brainstorming/SKILL.md`
-2. Check skill structure: each skill needs a `SKILL.md` with valid frontmatter
-3. Restart Kiro after copying skills
-
-### Power not activating
-
-1. Verify the power is installed in the Powers panel
-2. Try mentioning a keyword like "debug" or "brainstorm" in chat
-3. Check that POWER.md exists in the installed power directory
-
-### Tool mapping issues
-
-If the agent uses Claude Code tool names instead of Kiro equivalents, remind it:
-```text
-Use Kiro tools: discloseContext for skills, invokeSubAgent for subagents, executeBash for shell commands
+```bash
+./superpowers-kiro/.kiro-power/install.py --update-all
 ```
 
-## Getting Help
+### Uninstalling
 
-- Report issues: https://github.com/obra/superpowers/issues
-- Main documentation: https://github.com/obra/superpowers
+```bash
+./superpowers-kiro/.kiro-power/install.py --uninstall superpowers
+```
+
+## Option B: Fully Manual
+
+If you'd rather not run a script, you can wire up the same state by hand.
+
+1. Clone the repo somewhere persistent:
+
+   ```bash
+   git clone -b feat/kiro-support https://github.com/gaumondp/superpowers-kiro.git ~/.kiro/powers/repos/superpowers-kiro
+   ```
+
+2. Add an entry to `~/.kiro/powers/registries/user-added.json` (create the file
+   if it doesn't exist):
+
+   ```json
+   {
+     "powers": [
+       {
+         "name": "superpowers",
+         "description": "Superpowers skills system",
+         "source": {
+           "type": "local",
+           "path": "/Users/YOU/.kiro/powers/repos/superpowers-kiro/.kiro-power"
+         },
+         "autoInstall": false
+       }
+     ]
+   }
+   ```
+
+3. Add an entry to `~/.kiro/powers/installed.json`:
+
+   ```json
+   {
+     "version": "1.0.0",
+     "installedPowers": [
+       { "name": "superpowers", "registryId": "user-added" }
+     ],
+     "dismissedAutoInstalls": []
+   }
+   ```
+
+4. Mirror `POWER.md` so the panel finds it:
+
+   ```bash
+   mkdir -p ~/.kiro/powers/installed/superpowers/steering
+   cp ~/.kiro/powers/repos/superpowers-kiro/.kiro-power/POWER.md \
+      ~/.kiro/powers/installed/superpowers/POWER.md
+   ```
+
+5. Copy skills (same as Option A):
+
+   ```bash
+   mkdir -p ~/.kiro/skills
+   for skill in ~/.kiro/powers/repos/superpowers-kiro/skills/*/; do
+     cp -R "$skill" ~/.kiro/skills/"$(basename "$skill")"
+   done
+   ```
+
+6. Reload the Kiro window: `cmd-shift-P` → "Developer: Reload Window".
+
+## Notes
+
+- Use `source.type: "local"` rather than `"repo"`. Kiro's registry validator
+  silently drops `type: repo` entries that didn't go through its install pipeline.
+- The clone can live anywhere; pointing at `~/.kiro/powers/repos/` matches the
+  location Kiro itself uses for cached repos.
+- Kiro's "Install updates" button on a `type: local` power re-mirrors files but
+  doesn't pull from git. Use `install.py --update` for real upstream updates.
